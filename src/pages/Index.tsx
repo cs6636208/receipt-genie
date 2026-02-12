@@ -106,8 +106,7 @@ export default function Index() {
         .single();
 
       if (insertErr) throw insertErr;
-
-      // Insert items
+      
       if (result.items?.length) {
         const { error: itemsErr } = await supabase.from("expense_items").insert(
           result.items.map((item) => ({
