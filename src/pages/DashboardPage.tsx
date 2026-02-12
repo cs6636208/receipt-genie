@@ -93,7 +93,7 @@ export default function DashboardPage() {
         <Card>
           <CardHeader>
             <CardTitle>{t.byCategory}</CardTitle>
-          </CardHeader>
+          </CardHeader> 
           <CardContent>
             {categoryData.length === 0 ? (
               <p className="py-10 text-center text-muted-foreground">{t.noData}</p>
