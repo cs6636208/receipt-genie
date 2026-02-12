@@ -104,7 +104,7 @@ interface I18nContextType {
 const I18nContext = createContext<I18nContextType | null>(null);
 
 export function I18nProvider({ children }: { children: React.ReactNode }) {
-  const [lang, setLang] = useState<Lang>("th");
+  const [lang, setLang] = useState<Lang>("en");
   const toggleLang = useCallback(() => setLang((l) => (l === "th" ? "en" : "th")), []);
   const t = translations[lang] as Record<string, any>;
 
