@@ -81,7 +81,7 @@ export default function Index() {
     if (!result || !file) return;
     setSaving(true);
     try {
-      // Upload image to storage
+
       const ext = file.name.split(".").pop();
       const path = `${uuidv4()}.${ext}`;
       const { error: uploadErr } = await supabase.storage
@@ -91,7 +91,7 @@ export default function Index() {
 
       const { data: urlData } = supabase.storage.from("receipts").getPublicUrl(path);
 
-      // Insert receipt
+      
       const { data: receipt, error: insertErr } = await supabase
         .from("receipts")
         .insert({
@@ -106,7 +106,7 @@ export default function Index() {
         .single();
 
       if (insertErr) throw insertErr;
-      
+
       if (result.items?.length) {
         const { error: itemsErr } = await supabase.from("expense_items").insert(
           result.items.map((item) => ({
