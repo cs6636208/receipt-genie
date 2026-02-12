@@ -31,7 +31,6 @@ export default function DashboardPage() {
 
   const totalExpenses = receipts.reduce((sum, r) => sum + (r.total_amount || 0), 0);
 
-  // By category
   const categoryMap: Record<string, number> = {};
   receipts.forEach((r) => {
     const cat = r.category || "other";
@@ -42,7 +41,6 @@ export default function DashboardPage() {
     value,
   }));
 
-  // Monthly trend
   const monthMap: Record<string, number> = {};
   receipts.forEach((r) => {
     if (r.receipt_date) {
