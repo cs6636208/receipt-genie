@@ -99,7 +99,7 @@ export default function DashboardPage() {
               <p className="py-10 text-center text-muted-foreground">{t.noData}</p>
             ) : (
               <div className="h-64">
-                <ResponsiveContainer width="100%" height="100%">
+                <ChartContainer config={{}} className="w-full h-64">
                   <PieChart>
                     <Pie
                       data={categoryData}
@@ -116,7 +116,7 @@ export default function DashboardPage() {
                     </Pie>
                     <ChartTooltip content={<ChartTooltipContent />} />
                   </PieChart>
-                </ResponsiveContainer>
+                </ChartContainer>
               </div>
             )}
           </CardContent>
