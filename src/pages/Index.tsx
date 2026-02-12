@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
+import { v4 as uuidv4 } from "uuid";
 
 interface ReceiptItem {
   item_name: string;
@@ -82,7 +83,7 @@ export default function Index() {
     try {
       // Upload image to storage
       const ext = file.name.split(".").pop();
-      const path = `${crypto.randomUUID()}.${ext}`;
+      const path = `${uuidv4()}.${ext}`;
       const { error: uploadErr } = await supabase.storage
         .from("receipts")
         .upload(path, file);
