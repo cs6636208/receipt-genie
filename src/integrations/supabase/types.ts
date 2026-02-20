@@ -24,6 +24,7 @@ export type Database = {
           receipt_id: string
           total_price: number | null
           unit_price: number | null
+          user_id: string | null
         }
         Insert: {
           category?: string | null
@@ -34,6 +35,7 @@ export type Database = {
           receipt_id: string
           total_price?: number | null
           unit_price?: number | null
+          user_id?: string | null
         }
         Update: {
           category?: string | null
@@ -44,6 +46,7 @@ export type Database = {
           receipt_id?: string
           total_price?: number | null
           unit_price?: number | null
+          user_id?: string | null
         }
         Relationships: [
           {
@@ -65,6 +68,7 @@ export type Database = {
           receipt_date: string | null
           store_name: string | null
           total_amount: number | null
+          user_id: string | null
         }
         Insert: {
           category?: string | null
@@ -75,6 +79,7 @@ export type Database = {
           receipt_date?: string | null
           store_name?: string | null
           total_amount?: number | null
+          user_id?: string | null
         }
         Update: {
           category?: string | null
@@ -85,6 +90,7 @@ export type Database = {
           receipt_date?: string | null
           store_name?: string | null
           total_amount?: number | null
+          user_id?: string | null
         }
         Relationships: []
       }

@@ -12,15 +12,59 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  // ── Auth check ──────────────────────────────────────────────
+  const authHeader = req.headers.get("Authorization");
+  if (!authHeader?.startsWith("Bearer ")) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
+  const supabase = createClient(
+    Deno.env.get("SUPABASE_URL") ?? "",
+    Deno.env.get("SUPABASE_ANON_KEY") ?? "",
+    { global: { headers: { Authorization: authHeader } } }
+  );
+
+  const token = authHeader.replace("Bearer ", "");
+  const { data: claimsData, error: claimsError } = await supabase.auth.getClaims(token);
+  if (claimsError || !claimsData?.claims) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+  // ────────────────────────────────────────────────────────────
+
   try {
     const { imageBase64 } = await req.json();
 
-    if (!imageBase64) {
+    // ── Input validation ─────────────────────────────────────
+    if (!imageBase64 || typeof imageBase64 !== "string") {
       return new Response(JSON.stringify({ error: "No image provided" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+
+    // Max ~10 MB (base64 is ~37% larger than original)
+    const MAX_BASE64_LEN = 10 * 1024 * 1024 * 1.37;
+    if (imageBase64.length > MAX_BASE64_LEN) {
+      return new Response(JSON.stringify({ error: "Image too large (max 10MB)" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Validate base64 characters
+    if (!/^[A-Za-z0-9+/=]+$/.test(imageBase64)) {
+      return new Response(JSON.stringify({ error: "Invalid image format" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    // ────────────────────────────────────────────────────────────
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
