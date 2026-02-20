@@ -81,9 +81,12 @@ export default function Index() {
     if (!result || !file) return;
     setSaving(true);
     try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const userId = session?.user?.id;
+      if (!userId) throw new Error("Not authenticated");
 
       const ext = file.name.split(".").pop();
-      const path = `${uuidv4()}.${ext}`;
+      const path = `${userId}/${uuidv4()}.${ext}`;
       const { error: uploadErr } = await supabase.storage
         .from("receipts")
         .upload(path, file);
@@ -91,7 +94,6 @@ export default function Index() {
 
       const { data: urlData } = supabase.storage.from("receipts").getPublicUrl(path);
 
-      
       const { data: receipt, error: insertErr } = await supabase
         .from("receipts")
         .insert({
@@ -101,6 +103,7 @@ export default function Index() {
           category: result.category,
           image_url: urlData.publicUrl,
           raw_ai_response: result as any,
+          user_id: userId,
         })
         .select()
         .single();
@@ -116,6 +119,7 @@ export default function Index() {
             unit_price: item.unit_price,
             total_price: item.total_price,
             category: item.category,
+            user_id: userId,
           }))
         );
         if (itemsErr) throw itemsErr;

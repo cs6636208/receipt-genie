@@ -1,7 +1,8 @@
 import { Link, useLocation } from "react-router-dom";
-import { Upload, History, BarChart3, Globe } from "lucide-react";
+import { Upload, History, BarChart3, Globe, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/lib/i18n";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const { t, lang, toggleLang } = useI18n();
@@ -12,6 +13,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     { to: "/history", icon: History, label: t.history },
     { to: "/dashboard", icon: BarChart3, label: t.dashboard },
   ];
+
+  const handleLogout = () => supabase.auth.signOut();
 
   return (
     <div className="min-h-screen bg-background">
@@ -36,6 +39,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             ))}
             <Button variant="outline" size="icon" onClick={toggleLang} className="ml-2 h-9 w-9">
               <Globe className="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" size="icon" onClick={handleLogout} className="h-9 w-9 text-muted-foreground hover:text-destructive">
+              <LogOut className="h-4 w-4" />
             </Button>
           </nav>
         </div>
