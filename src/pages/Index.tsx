@@ -92,7 +92,10 @@ export default function Index() {
         .upload(path, file);
       if (uploadErr) throw uploadErr;
 
-      const { data: urlData } = supabase.storage.from("receipts").getPublicUrl(path);
+      const { data: urlData, error: urlError } = await supabase.storage
+        .from("receipts")
+        .createSignedUrl(path, 60 * 60 * 24 * 365); // 1-year signed URL stored in DB
+      if (urlError) throw urlError;
 
       const { data: receipt, error: insertErr } = await supabase
         .from("receipts")
@@ -101,7 +104,7 @@ export default function Index() {
           receipt_date: result.receipt_date,
           total_amount: result.total_amount,
           category: result.category,
-          image_url: urlData.publicUrl,
+          image_url: path, // store the storage path, not the URL
           raw_ai_response: result as any,
           user_id: userId,
         })

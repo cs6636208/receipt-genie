@@ -14,6 +14,7 @@ export default function HistoryPage() {
   const { t } = useI18n();
   const { toast } = useToast();
   const [receipts, setReceipts] = useState<Tables<"receipts">[]>([]);
+  const [signedUrls, setSignedUrls] = useState<Record<string, string>>({});
   const [items, setItems] = useState<Record<string, Tables<"expense_items">[]>>({});
   const [filter, setFilter] = useState("all");
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -22,7 +23,26 @@ export default function HistoryPage() {
     let query = supabase.from("receipts").select("*").order("receipt_date", { ascending: false });
     if (filter !== "all") query = query.eq("category", filter);
     const { data } = await query;
-    setReceipts(data || []);
+    const rows = data || [];
+    setReceipts(rows);
+
+    // Generate signed URLs for all receipts that have a storage path
+    const urlMap: Record<string, string> = {};
+    await Promise.all(
+      rows.map(async (r) => {
+        if (!r.image_url) return;
+        // Support both legacy public URLs and new storage paths
+        if (r.image_url.startsWith("http")) {
+          urlMap[r.id] = r.image_url;
+        } else {
+          const { data: signed } = await supabase.storage
+            .from("receipts")
+            .createSignedUrl(r.image_url, 60 * 60); // 1-hour signed URL for display
+          if (signed?.signedUrl) urlMap[r.id] = signed.signedUrl;
+        }
+      })
+    );
+    setSignedUrls(urlMap);
   };
 
   useEffect(() => { fetchData(); }, [filter]);
@@ -94,8 +114,8 @@ export default function HistoryPage() {
                 onClick={() => loadItems(r.id)}
               >
                 <div className="flex items-center gap-3">
-                  {r.image_url ? (
-                    <img src={r.image_url} alt="" className="h-12 w-12 rounded-lg object-cover" />
+                  {signedUrls[r.id] ? (
+                    <img src={signedUrls[r.id]} alt="" className="h-12 w-12 rounded-lg object-cover" />
                   ) : (
                     <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-muted">
                       <Image className="h-5 w-5 text-muted-foreground" />
